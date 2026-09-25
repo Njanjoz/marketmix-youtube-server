@@ -18,9 +18,11 @@ const clientId = process.env.YOUTUBE_CLIENT_ID || (config.clientId && config.cli
 const clientSecret = process.env.YOUTUBE_CLIENT_SECRET || (config.clientSecret && config.clientSecret !== 'YOUR_YOUTUBE_CLIENT_SECRET' ? config.clientSecret : null);
 const redirectUri = process.env.YOUTUBE_REDIRECT_URI || config.redirectUri || 'https://marketmix-youtube-server.onrender.com/auth/youtube/callback';
 
-if (!clientId || !clientSecret) {
-  console.error("ERROR: YouTube Client ID or Client Secret is missing. Please set YOUTUBE_CLIENT_ID and YOUTUBE_CLIENT_SECRET in Render Environment variables.");
-}
+console.log("=== YouTube Service Config Debug ===");
+console.log("Has Client ID:", !!clientId, clientId ? `(${clientId.substring(0, 10)}...)` : "MISSING");
+console.log("Has Client Secret:", !!clientSecret);
+console.log("Redirect URI:", redirectUri);
+console.log("Has Refresh Token Env:", !!process.env.YOUTUBE_REFRESH_TOKEN);
 
 const oauth2Client = new google.auth.OAuth2(
   clientId,
