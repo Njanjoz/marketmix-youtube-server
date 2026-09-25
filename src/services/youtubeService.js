@@ -14,9 +14,13 @@ try {
   // ignore
 }
 
-const clientId = process.env.YOUTUBE_CLIENT_ID || config.clientId;
-const clientSecret = process.env.YOUTUBE_CLIENT_SECRET || config.clientSecret;
-const redirectUri = process.env.YOUTUBE_REDIRECT_URI || config.redirectUri || 'http://localhost:5000/auth/youtube/callback';
+const clientId = process.env.YOUTUBE_CLIENT_ID || (config.clientId && config.clientId !== 'YOUR_YOUTUBE_CLIENT_ID' ? config.clientId : null);
+const clientSecret = process.env.YOUTUBE_CLIENT_SECRET || (config.clientSecret && config.clientSecret !== 'YOUR_YOUTUBE_CLIENT_SECRET' ? config.clientSecret : null);
+const redirectUri = process.env.YOUTUBE_REDIRECT_URI || config.redirectUri || 'https://marketmix-youtube-server.onrender.com/auth/youtube/callback';
+
+if (!clientId || !clientSecret) {
+  console.error("ERROR: YouTube Client ID or Client Secret is missing. Please set YOUTUBE_CLIENT_ID and YOUTUBE_CLIENT_SECRET in Render Environment variables.");
+}
 
 const oauth2Client = new google.auth.OAuth2(
   clientId,
@@ -43,6 +47,9 @@ const getAuthenticatedClient = async () => {
 };
 
 export const getAuthUrl = () => {
+  if (!clientId || !clientSecret) {
+    throw new Error('YouTube Client ID and Client Secret are not configured in Render environment variables.');
+  }
   return oauth2Client.generateAuthUrl({
     access_type: 'offline',
     scope: ['https://www.googleapis.com/auth/youtube.upload'],
@@ -51,6 +58,9 @@ export const getAuthUrl = () => {
 };
 
 export const setCredentials = async (code) => {
+  if (!clientId || !clientSecret) {
+    throw new Error('YouTube Client ID and Client Secret are not configured.');
+  }
   const { tokens } = await oauth2Client.getToken(code);
   try {
     await fsPromises.writeFile(TOKEN_PATH, JSON.stringify(tokens));
